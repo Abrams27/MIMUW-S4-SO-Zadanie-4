@@ -178,8 +178,9 @@ static int sef_cb_init_fresh(int UNUSED(type), sef_init_info_t *UNUSED(info))
   		procs_in_use += 1;		/* found user process */
 
 		/* Set process details found in the image table. */
-		rmp = &mproc[ip->proc_nr];	
-  		strlcpy(rmp->mp_name, ip->proc_name, PROC_NAME_LEN); 
+		rmp = &mproc[ip->proc_nr];
+		rmp->number_of_kudos = 0;
+  		strlcpy(rmp->mp_name, ip->proc_name, PROC_NAME_LEN);
   		(void) sigemptyset(&rmp->mp_ignore);	
   		(void) sigemptyset(&rmp->mp_sigmask);
   		(void) sigemptyset(&rmp->mp_catch);

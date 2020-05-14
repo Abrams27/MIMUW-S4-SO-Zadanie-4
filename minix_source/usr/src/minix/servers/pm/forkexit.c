@@ -85,6 +85,20 @@ int do_fork()
   procs_in_use++;
   *rmc = *rmp;			/* copy parent's process slot to child's */
   rmc->mp_parent = who_p;			/* record child's parent */
+
+  printf("[do_fork]: parent pid: %d\n",  mproc[who_p].mp_pid);
+  printf("[do_fork]: children pid: %d\n", rmc->mp_pid);
+
+  printf("[do_givekudos]: parent kudos (before / 2): %d\n", mproc[who_p].number_of_kudos);
+  printf("[do_givekudos]: argument kudos (before / 2): %d\n", rmc->number_of_kudos);
+
+  rmc->number_of_kudos = mproc[who_p].number_of_kudos / 2;
+  mproc[who_p] = (mproc[who_p].number_of_kudos + 1) / 2;
+
+  printf("[do_givekudos]: parent kudos (after / 2): %d\n", mproc[who_p].number_of_kudos);
+  printf("[do_givekudos]: argument kudos (after / 2): %d\n", rmc->number_of_kudos);
+  printf("\n\n");
+
   if (!(rmc->mp_trace_flags & TO_TRACEFORK)) {
 	rmc->mp_tracer = NO_TRACER;		/* no tracer attached */
 	rmc->mp_trace_flags = 0;

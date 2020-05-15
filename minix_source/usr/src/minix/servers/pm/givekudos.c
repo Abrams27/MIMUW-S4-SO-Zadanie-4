@@ -13,28 +13,17 @@ int do_givekudos(void) {
 
   register struct mproc *rmp = mp;
 
-//  printf("[do_givekudos]: calling pid: %d\n", rmp->mp_pid);
-
   pid_t target_process_pid = m_in.m_lc_pm_getsid.pid;
   struct mproc *target_process_mproc = find_proc(target_process_pid);
 
   if (target_process_mproc == NULL) {
-//    printf("[do_givekudos]: argument is null!\n");
     return EINVAL;
   }
 
-//  printf("[do_givekudos]: argument pid: %d\n", target_process_pid);
-
   if (is_parent_of_process(rmp, target_process_mproc) == 1
     || is_parent_of_process(target_process_mproc, rmp) == 1) {
-//    printf("[do_givekudos]: parent check not passed!\n");
     return EPERM;
   }
-
-//  printf("[do_givekudos]: parent check passed!\n");
-//  printf("[do_givekudos]: calling kudos: %d\n", rmp->number_of_kudos);
-//  printf("[do_givekudos]: argument kudos (before ++): %d\n", target_process_mproc->number_of_kudos);
-//  printf("\n\n");
 
   target_process_mproc->number_of_kudos++;
 

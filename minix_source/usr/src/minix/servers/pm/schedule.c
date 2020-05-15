@@ -37,7 +37,7 @@ void sched_init(void)
 			s = sched_start(SCHED_PROC_NR,	/* scheduler_e */
 				trmp->mp_endpoint,	/* schedulee_e */
 				parent_e,		/* parent_e */
-				USER_Q, 		/* maxprio */
+				USER_Q + 3, 		/* maxprio */
 				USER_QUANTUM, 		/* quantum */
 				-1,			/* don't change cpu */
 				&trmp->mp_scheduler);	/* *newsched_e */

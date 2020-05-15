@@ -284,7 +284,6 @@ int do_getsetpriority()
 	 * the kernel's scheduling queues.
 	 */
 
-	// TODO
 	if ((r = sched_nice(rmp, arg_pri)) != OK) {
 		return r;
 	}

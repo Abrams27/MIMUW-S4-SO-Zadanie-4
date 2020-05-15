@@ -38,13 +38,6 @@ int getpriority(int which, id_t who)
 
 int setpriority(int which, id_t who, int prio)
 {
-	message m;
-
-	memset(&m, 0, sizeof(m));
-	m.m_lc_pm_priority.which = which;
-	m.m_lc_pm_priority.who = who;
-	m.m_lc_pm_priority.prio = prio;
-
-	return _syscall(PM_PROC_NR, PM_SETPRIORITY, &m);
+  return 0;
 }
 

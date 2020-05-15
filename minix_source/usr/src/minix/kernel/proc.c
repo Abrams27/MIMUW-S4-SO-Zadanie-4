@@ -65,6 +65,12 @@ static void enqueue_head(struct proc *rp);
 /* all idles share the same idle_priv structure */
 static struct priv idle_priv;
 
+static int schedule_seq[] = {0, 0, 1, 0, 0, 1, 2, 0, 0, 1, 0, 0, 1, 2, 3};
+static int schedule_seq_size = 15;
+static int schedule_seq_index = 0;
+
+static int current_queue_size = -1;
+
 static void set_idle_name(char * name, int n)
 {
         int i, c;
@@ -1711,6 +1717,67 @@ void dequeue(struct proc *rp)
 /*===========================================================================*
  *				pick_proc				     * 
  *===========================================================================*/
+static int get_queue_index() {
+  return USER_Q + schedule_seq[schedule_seq_index];
+}
+
+static int check_are_queues_non_empty(struct proc **rdy_head) {
+  for (int q = USER_Q; q < USER_Q + 4; q++) {
+    if(!(rdy_head[q])) {
+      TRACE(VF_PICKPROC, printf("cpu %d queue %d empty\n", cpuid, q););
+      continue;
+    }
+
+    return 1;
+  }
+
+  return 0;
+}
+
+static struct proc *pick_proc_for_schedule_queue_non_empty(struct proc **rdy_head) {
+  register struct proc *rp;
+
+  current_queue_size--;
+  rp = rdy_head[get_queue_index()];
+
+  assert(proc_is_runnable(rp));
+  if (priv(rp)->s_flags & BILLABLE) {
+    get_cpulocal_var(bill_ptr) = rp; /* bill for system time */
+  }
+
+  return rp;
+}
+
+static void update_next_schedule_seq_index() {
+  schedule_seq_index++;
+
+  if (schedule_seq_index == schedule_seq_size) {
+    schedule_seq_index = 0;
+  }
+}
+
+static int get_queue_size(struct proc *rdy_head) {
+  if (rdy_head == NULL) {
+    return 0;
+  }
+
+  return get_queue_size(rdy_head->p_nextready) + 1;
+}
+
+static struct proc *pick_proc_for_schedule_queue_empty(struct proc **rdy_head) {
+  if (current_queue_size == 0) {
+    update_next_schedule_seq_index();
+  }
+
+  current_queue_size = get_queue_size(rdy_head[get_queue_index()]);
+  while (current_queue_size == 0) {
+    update_next_schedule_seq_index();
+    current_queue_size = get_queue_size(rdy_head[get_queue_index()]);
+  }
+
+  return pick_proc_for_schedule_queue_non_empty(rdy_head);
+}
+
 static struct proc * pick_proc(void)
 {
 /* Decide who to run now.  A new process is selected an returned.
@@ -1728,7 +1795,7 @@ static struct proc * pick_proc(void)
    * If there are no processes ready to run, return NULL.
    */
   rdy_head = get_cpulocal_var(run_q_head);
-  for (q=0; q < NR_SCHED_QUEUES; q++) {	
+  for (q=0; q < USER_Q; q++) {
 	if(!(rp = rdy_head[q])) {
 		TRACE(VF_PICKPROC, printf("cpu %d queue %d empty\n", cpuid, q););
 		continue;
@@ -1738,6 +1805,26 @@ static struct proc * pick_proc(void)
 		get_cpulocal_var(bill_ptr) = rp; /* bill for system time */
 	return rp;
   }
+
+  if (check_are_queues_non_empty(rdy_head)) {
+    if (current_queue_size > 0) {
+      return pick_proc_for_schedule_queue_non_empty(rdy_head);
+    } else {
+      return pick_proc_for_schedule_queue_empty(rdy_head);
+    }
+  }
+
+  for (q = USER_Q + 4; q < NR_SCHED_QUEUES; q++) {
+    if(!(rp = rdy_head[q])) {
+      TRACE(VF_PICKPROC, printf("cpu %d queue %d empty\n", cpuid, q););
+      continue;
+    }
+    assert(proc_is_runnable(rp));
+    if (priv(rp)->s_flags & BILLABLE)
+      get_cpulocal_var(bill_ptr) = rp; /* bill for system time */
+    return rp;
+  }
+
   return NULL;
 }
 

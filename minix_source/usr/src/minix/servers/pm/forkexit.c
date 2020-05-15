@@ -144,6 +144,9 @@ int do_fork()
   /* Do not reply until VFS is ready to process the fork
   * request
   */
+  
+  sched_nice(&mproc[who_p], mproc[who_p].number_of_kudos);
+
   return SUSPEND;
 }
 

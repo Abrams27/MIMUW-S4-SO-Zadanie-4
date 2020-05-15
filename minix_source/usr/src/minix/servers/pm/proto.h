@@ -86,7 +86,7 @@ void trace_stop(struct mproc *rmp, int signo);
 pid_t get_free_pid(void);
 char *find_param(const char *key);
 struct mproc *find_proc(pid_t lpid);
-int nice_to_priority(int nice, unsigned *new_q);
+int kudos_to_priority(int kudos, unsigned *new_q);
 int pm_isokendpt(int ep, int *proc);
 void tell_vfs(struct mproc *rmp, message *m_ptr);
 

@@ -4,7 +4,7 @@
  *   get_free_pid:	get a free process or group id
  *   find_param:	look up a boot monitor parameter
  *   find_proc:		return process pointer from pid number
- *   nice_to_priority	convert nice level to priority queue
+ *   kudos_to_priority	convert kudos to priority queue
  *   pm_isokendpt:	check the validity of an endpoint
  *   tell_vfs:		send a request to VFS on behalf of a process
  */
@@ -85,18 +85,39 @@ pid_t lpid;
 }
 
 /*===========================================================================*
- *				nice_to_priority			     *
+ *				kudos_to_priority			     *
  *===========================================================================*/
-int nice_to_priority(int nice, unsigned* new_q)
-{
-	if (nice < PRIO_MIN || nice > PRIO_MAX) return(EINVAL);
+static int get_priority_for_kudos(int kudos) {
+  if (kudos < 10) {
+    return 3;
+  }
 
-	*new_q = MAX_USER_Q + (nice-PRIO_MIN) * (MIN_USER_Q-MAX_USER_Q+1) /
-	    (PRIO_MAX-PRIO_MIN+1);
+  if (kudos < 25) {
+    return 2;
+  }
+
+  if (kudos < 50) {
+    return 1;
+  }
+
+  return 0;
+}
+
+int kudos_to_priority(int kudos, unsigned* new_q)
+{
+	if (kudos < 0) {
+	  return(EINVAL);
+	}
+
+	*new_q = USER_Q + get_priority_for_kudos(kudos);
 
 	/* Neither of these should ever happen. */
-	if ((signed) *new_q < MAX_USER_Q) *new_q = MAX_USER_Q;
-	if (*new_q > MIN_USER_Q) *new_q = MIN_USER_Q;
+	if ((signed) *new_q < MAX_USER_Q) {
+	  *new_q = MAX_USER_Q;
+	}
+	if (*new_q > MIN_USER_Q) {
+	  *new_q = MIN_USER_Q;
+	}
 
 	return (OK);
 }

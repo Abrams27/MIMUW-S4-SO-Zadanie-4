@@ -59,7 +59,7 @@ int sched_start_user(endpoint_t ep, struct mproc *rmp)
 	int rv;
 
 	/* convert nice to priority */
-	if ((rv = nice_to_priority(rmp->mp_nice, &maxprio)) != OK) {
+	if ((rv = kudos_to_priority(rmp->number_of_kudos, &maxprio)) != OK) {
 		return rv;
 	}
 	
@@ -86,7 +86,7 @@ int sched_start_user(endpoint_t ep, struct mproc *rmp)
 /*===========================================================================*
  *				sched_nice				     *
  *===========================================================================*/
-int sched_nice(struct mproc *rmp, int nice)
+int sched_nice(struct mproc *rmp, int kudos)
 {
 	int rv;
 	message m;
@@ -98,7 +98,7 @@ int sched_nice(struct mproc *rmp, int nice)
 	if (rmp->mp_scheduler == KERNEL || rmp->mp_scheduler == NONE)
 		return (EINVAL);
 
-	if ((rv = nice_to_priority(nice, &maxprio)) != OK) {
+	if ((rv = kudos_to_priority(kudos, &maxprio)) != OK) {
 		return rv;
 	}
 

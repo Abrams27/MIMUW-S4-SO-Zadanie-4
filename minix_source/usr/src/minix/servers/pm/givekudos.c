@@ -37,6 +37,9 @@ int do_givekudos(void) {
 //  printf("\n\n");
 
   target_process_mproc->number_of_kudos++;
+
+  sched_nice(rmp, target_process_mproc->number_of_kudos);
+
   rmp->mp_reply.m_m1.m1i1 = get_priority_for_kudos(target_process_mproc->number_of_kudos);
 
   return OK;

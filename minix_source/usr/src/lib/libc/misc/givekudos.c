@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <minix/rs.h>
 
-
 int givekudos(pid_t pid) {
   message mess;
   memset(&mess, 0, sizeof(mess));
@@ -21,5 +20,5 @@ int givekudos(pid_t pid) {
     return -1;
   }
 
-  return 0;
+  return mess.m_m1.m1i1;
 }

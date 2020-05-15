@@ -13,43 +13,38 @@ int main() {
   printf("startowy pid: %d\n", getpid());
   printf("liczba kudosow startowego: 0\n");
 
-  switch (fork()) {
+  switch (first_child_pid = fork()) {
     case 0:
       first_child_pid = getpid();
-      usleep(30000);
+      printf("pid dziecka: %d\n", first_child_pid);
+      usleep(60000);
 
-      break;
+      return 0;
 
     default:
       usleep(1000);
-
-      printf("probuje dac kudosy swojemu dziecku: nie powinno sie udać (moj pid: %d)\n", getpid());
+      printf("pid dziecka w rodzicu: %d\n", first_child_pid);
+      printf("probuje dac kudosy swojemu dziecku: nie powinno sie udac (moj pid: %d)\n", getpid());
       givekudos(first_child_pid);
       printf("nie udalo sie? sprawdz! (moj pid: %d)\n", getpid());
-
-      if (wait(0) == -1)
-        syserr("wait");
 
       break;
   }
 
   switch (fork()) {
     case 0:
-      usleep(10000);
-
-      printf("probuje dac kudosy swojemu kuzynowi: powinno sie udać (moj pid: %d)\n", getpid());
+      usleep(1000);
+      printf("pid dziecka w rodzicu: %d\n", first_child_pid);
+      printf("probuje dac kudosy swojemu kuzynowi: powinno sie udac (moj pid: %d)\n", getpid());
       givekudos(first_child_pid);
       printf("udalo sie? sprawdz! (moj pid: %d)\n", getpid());
-
-      usleep(30000);
 
       break;
 
     default:
       usleep(1000);
 
-      if (wait(0) == -1)
-        syserr("wait");
+      wait(0);
 
       break;
   }

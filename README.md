@@ -1,2 +1,2 @@
 # MIM-S4-SO-Zadanie-4
-Zadanie nr 4. na SO
+[Minix source code](https://www.minix3.org) edited by me for the SO class.
